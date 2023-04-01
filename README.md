@@ -12,3 +12,8 @@
 
 ![App Screenshot](https://www.bezkoder.com/wp-content/uploads/spring-boot-authentication-spring-security-architecture.png)
 
+## Filters in work
+
+![Screenshot 2023-04-01 125352](https://user-images.githubusercontent.com/59679003/229272064-6186fdd5-9e0a-456b-b0d8-9f481f4a0748.png)
+
+
