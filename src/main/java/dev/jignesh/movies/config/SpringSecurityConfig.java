@@ -1,6 +1,8 @@
 package dev.jignesh.movies.config;
 
+import dev.jignesh.movies.filter.JWTAuthFilter;
 import dev.jignesh.movies.service.config.CredentialsDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,15 +12,20 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SpringSecurityConfig {
+
+    @Autowired
+    JWTAuthFilter jwtAuthFilter;
 
     //Authentication part
     @Bean
@@ -54,12 +61,20 @@ public class SpringSecurityConfig {
     //Authorization part
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
+
         return http.
                 csrf().disable()
                 .authorizeHttpRequests().requestMatchers("/api/v1/**","/user/credentials/adduser").authenticated()
-                .and().httpBasic()
                 .and().authorizeHttpRequests().requestMatchers("/user/credentials/generateJWTToken").permitAll()
-                .and().build();
+                .and().httpBasic()
+
+                //JWTAuthorization
+                .and().sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class) //Requests execution of JWT filter before internal Spring security filters
+                .build();
     }
 
     @Bean
